@@ -14,48 +14,45 @@
   <div class="wrapper">
     <div class="main-header">
       <span>What needs to be done?</span>
-      <span id="add-item">+</span>
+      <span id="addItem" class="event">+</span>
     </div>
 
     <div class="main-info">
-      <table class="main-table">
+      <table id="main-table">
         <thead>
           <tr>
-            <th>1
-            </th>
-            <th>2
-            </th>
-            <th>3
-            </th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1
-            </td>
-            <td>2
-            </td>
-            <td>3
-            </td>
+          <tr id="lastRow">
+            <td></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <footer class="footer">
-      <div class="menu-item items-count">
-        items left
-      </div>
       <div class="menu-item task-status">
-        <div id="all">All</div>
-        <div id="active">Active</div>
-        <div id="completed">Completed</div>
+        <div class="event" id="showAll">All</div>
+        <div class="event" id="showActive">Active</div>
+        <div class="event" id="showCompleted">Completed</div>
       </div>
-      <div class="menu-item">Clear completed</div>
-      <div class="menu-item">Mark all to comleted</div>
+      <div class="menu-item">
+        <div class="event" id="deleteAllCompleted">Clear completed</div>
+        <div class="event" id="setAllToComplete">Mark all to comleted</div>
     </footer>
   </div>
 </body>
   <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
-  <script src="main.js"></script>
+  <script type="text/javascript" src="js/todoItem.js"></script>
+  <script type="text/javascript" src="js/storage.js"></script>
+  <script type="text/javascript" src="js/model.js"></script>
+  <script type="text/javascript" src="js/templates.js"></script>
+  <script type="text/javascript" src="js/todoList.js"></script>
+
+  <script>
+    (function(){      
+      window.todoList = new TodoList();
+    })();
+  </script>
 </html>
