@@ -1,6 +1,6 @@
 Template = {
-	addItem: function(id) {
-		var str = "<tr id='lastRow'><td>1</td><td>2</td><td class='removeItem event'> X </td></tr>";
+	addItem: function(itemId) {
+		var str = "<tr id='" + itemId + "'><td class='changeStateItem event'><input type='checkbox' name='itemState'></td><td class='itemText'> <input type='text'></td><td class='removeItem event'>X</td></tr>";
 		return str;
 	}
 }

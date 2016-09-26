@@ -5,7 +5,7 @@ Storage = {
 	},
 
 	getItem: function(key) {
-		localStorage.getItem(key);
+		return localStorage.getItem(key);
 	},
 
 	removeItem: function(key) {
@@ -13,6 +13,22 @@ Storage = {
 	},
 
 	clearAllCompletedItems: function() {
+		
+	},
+
+	getAllItems: function() {
+    var values = [],
+        keys = Object.keys(localStorage),
+        i = keys.length;
+
+    while ( i-- ) {
+        values.push( localStorage.getItem(keys[i]));
+    }
+
+    return values;
+	},
+
+	clearAllItems: function() {
 		localStorage.clear();
 	}
 }

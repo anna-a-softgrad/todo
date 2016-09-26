@@ -1,10 +1,7 @@
-TodoItem = function() {
+TodoItem = function(itemId) {
 	//this.indexItem = как-то задать произвольный инекс
 	this.doneItem = false;
-}
-
-TodoItem.prototype.getIndex = function() {
-	return this.indexItem;
+	this.itemID = itemId;
 }
 TodoItem.prototype.changeState = function() {
 	this.doneItem = !this.doneItem; // так можно??

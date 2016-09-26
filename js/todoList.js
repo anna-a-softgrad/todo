@@ -1,39 +1,41 @@
 TodoList = function() {
-	this.idItem = 0;
-	this.container = document.getElementById('lastRow');
-	this.addItemButton = document.getElementById('addItem');
-	this.removeItemButton = document.getElementById('removeItem');
-	this.removeAllCompleted =  document.getElementById('deleteAllCompleted');
-	this.setAllToComplete =  document.getElementById('setAllToComplete');	
+	this.itemID = 0;
+	Model.clearAllItems();
 
-	this.showAll = document.getElementById('showAll');
-	this.showActive =  document.getElementById('showActive');
-	this.showCompleted =  document.getElementById('showCompleted');
+	$(document).on('click', '#addItem', this.addTask.bind(this));
+	$(document).on('click', '.changeStateItem', this.changeStateTask.bind(this));
+	$(document).on('click', '.removeItem', this.removeTask.bind(this));
 
-	this.addItemButton.addEventListener("click", this.addTask.bind(this));
-	this.removeItemButton.addEventListener("click", this.removeTask.bind(this));
-	this.removeAllCompleted.addEventListener("click", this.removeAllCompleted.bind(this));
-	this.setAllToComplete.addEventListener("click", this.setAllToComplete.bind(this));
-
-	this.showAll.addEventListener("click", this.showAllTasks.bind(this));
-	this.showActive.addEventListener("click", this.showActiveTasks.bind(this));
-	this.showCompleted.addEventListener("click", this.showCompletedTasks.bind(this));
+	$(document).on('click', '#showAll', this.showAllTasks.bind(this));
+	$(document).on('click', '#showActive', this.showActiveTasks.bind(this));
+	$(document).on('click', '#showCompleted', this.showCompletedTasks.bind(this));
+	$(document).on('click', '#deleteAllCompleted', this.removeAllCompleted.bind(this));
+	$(document).on('click', '#setAllToComplete', this.setAllToComplete.bind(this));
 }
 
 
 TodoList.prototype.addTask = function() {
-	var taskItem = new TodoItem();
+	this.itemID++;
+	var taskItem = new TodoItem(this.itemID);
 
-	//save to localstorage
-	this.idItem++;
-	var obj = JSON.stringify(taskItem);
-	Model.setToStorage(this.idItem, obj)
+	//  find last rowId
+	var allItems = Model.getAllItems();
 
-	//painting
-	var lastRow = document.getElementById('lastRow');	
-	var tempAddTask = Template.addItem();
+	var lastItemId = 0;
+	for(i=0; i < allItems.length; i++) {
+		var item = JSON.parse(allItems[i]);
+		lastItemId = item.itemID;
+	}
+
+	// painting
+	var lastRow = document.getElementById(lastItemId);	
+	var tempAddTask = Template.addItem(this.itemID);
 	lastRow.insertAdjacentHTML('afterend', tempAddTask);
-	$(lastRow).removeAttr("id")
+
+	// save to localstorage
+	var obj = JSON.stringify(taskItem);
+	Model.setToStorage(this.itemID, obj);
+
 }
 TodoList.prototype.changeStateTask = function() {
 	TodoItem.prototype.changeState();
@@ -41,19 +43,17 @@ TodoList.prototype.changeStateTask = function() {
 TodoList.prototype.removeTask = function(event) {
 	// удалить из массива или списка элемент
 
-	var id = event.target.id
-}
-TodoList.prototype.removeAllCompleted = function() {
-	//remove from localstorage
+	var itemId = $(event.target).parent()[0].id;
+	var rowToRemoveStr = "table#main-table tr#" + itemId;
 
-	Model.clearAllCompletedItems();
+	// painting   
+	//var tempItem = Model.getStorageItem(itemId);
+	$(rowToRemoveStr).remove();
 
+	// remove from localstorage
+	Model.removeStorageItem(itemId);
 }
-TodoList.prototype.setAllToComplete = function() {
-	for (var i = 0; i < this.tasksArray.length; i++) {
-  			// отобразить
-  	}
-}
+
 TodoList.prototype.showAllTasks = function() {
 	for (var i = 0; i < this.tasksArray.length; i++) {
   			// отобразить
@@ -78,4 +78,16 @@ TodoList.prototype.showCompletedTasks = function() {
   			// отобразить
   		}
 	}
+}
+
+TodoList.prototype.removeAllCompleted = function() {
+	//remove from localstorage
+
+	Model.clearAllCompletedItems();
+
+}
+TodoList.prototype.setAllToComplete = function() {
+	for (var i = 0; i < this.tasksArray.length; i++) {
+  			// отобразить
+  	}
 }
