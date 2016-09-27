@@ -1,6 +1,10 @@
 TodoList = function() {
+	this.todoItems = {};
 	this.itemID = 0;
+	// check state jo showing !!! this.itemShowing = 
+
 	Model.clearAllItems();
+
 
 	$(document).on('click', '#addItem', this.addTask.bind(this));
 	$(document).on('click', '.changeStateItem', this.changeStateTask.bind(this));
@@ -16,57 +20,56 @@ TodoList = function() {
 
 TodoList.prototype.addTask = function() {
 	this.itemID++;
-	var taskItem = new TodoItem(this.itemID);
-
-	//  find last rowId
-	var allItems = Model.getAllItems();
-
-	var lastItemId = 0;
-	for(i=0; i < allItems.length; i++) {
-		var item = JSON.parse(allItems[i]);
-		lastItemId = item.itemID;
-	}
+	this.todoItems[this.itemID] = new TodoItem(this.itemID);
 
 	// painting
-	var lastRow = document.getElementById(lastItemId);	
-	var tempAddTask = Template.addItem(this.itemID);
-	lastRow.insertAdjacentHTML('afterend', tempAddTask);
+	var table = document.getElementById("main-table");
+	var tempAddTask = this.todoItems[this.itemID].render(table);
 
 	// save to localstorage
-	var obj = JSON.stringify(taskItem);
+	var obj = JSON.stringify(this.todoItems[this.itemID]);
 	Model.setToStorage(this.itemID, obj);
 
 }
-TodoList.prototype.changeStateTask = function() {
-	TodoItem.prototype.changeState();
+TodoList.prototype.changeStateTask = function(event) {
+	var itemID = $(event.target).parents("tr")[0].id;
+
+	//painting
+	this.todoItems[itemID].changeState();
+
+	// change state in data
+	var obj = JSON.stringify(this.todoItems[itemID]);
+	Model.changeItemState(itemID, obj);
 }
 TodoList.prototype.removeTask = function(event) {
-	// удалить из массива или списка элемент
-
-	var itemId = $(event.target).parent()[0].id;
-	var rowToRemoveStr = "table#main-table tr#" + itemId;
+	var itemID = $(event.target).parents("tr")[0].id;
 
 	// painting   
-	//var tempItem = Model.getStorageItem(itemId);
-	$(rowToRemoveStr).remove();
+	this.todoItems[itemID].removeItem();
 
 	// remove from localstorage
-	Model.removeStorageItem(itemId);
+	Model.removeStorageItem(itemID);
 }
-
 TodoList.prototype.showAllTasks = function() {
-	for (var i = 0; i < this.tasksArray.length; i++) {
-  			// отобразить
-  		}
+	var allItems = Model.getAllItems();
+
+	for (i = 0; i < allItems.length; i++){
+		var item = JSON.parse(allItems[i]);
+			this.todoItems[item.itemID].showItem();
+	}
 }
 TodoList.prototype.showActiveTasks = function() {
-	// проверить все задачи на done
-	var arr = this.tasksArray;
+	var allItems = Model.getAllItems();
 
-	for (var i = 0; i < arr.length; i++) {
-  		if (arr[i].isDone == false) {
-  			// отобразить
-  		}
+	for (i = 0; i < allItems.length; i++){
+		var item = JSON.parse(allItems[i]);
+
+		if (item.itemDone == false){
+			this.todoItems[item.itemID].showItem();
+		}
+		else {
+			this.todoItems[item.itemID].hideItem();
+		}
 	}
 }
 TodoList.prototype.showCompletedTasks = function() {
@@ -79,12 +82,10 @@ TodoList.prototype.showCompletedTasks = function() {
   		}
 	}
 }
-
 TodoList.prototype.removeAllCompleted = function() {
 	//remove from localstorage
 
 	Model.clearAllCompletedItems();
-
 }
 TodoList.prototype.setAllToComplete = function() {
 	for (var i = 0; i < this.tasksArray.length; i++) {

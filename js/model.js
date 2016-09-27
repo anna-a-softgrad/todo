@@ -11,6 +11,10 @@ Model  = {
 	removeStorageItem: function(key) {
 		Storage.removeItem(key);
 	},
+
+	changeItemState: function(key, value) {
+		Storage.changeState(key, value);
+	},
 	
 	clearAllCompletedItems: function() {
 		Storage.clearAllCompletedItems();

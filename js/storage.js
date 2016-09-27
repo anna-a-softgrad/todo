@@ -12,6 +12,11 @@ Storage = {
 		localStorage.removeItem(key);
 	},
 
+	changeState: function(key, value) {
+		localStorage.removeItem(key);
+		localStorage.setItem(key, value);
+	},
+
 	clearAllCompletedItems: function() {
 		
 	},

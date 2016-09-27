@@ -1,18 +1,31 @@
 TodoItem = function(itemId) {
 	//this.indexItem = как-то задать произвольный инекс
-	this.doneItem = false;
+	this.itemDone = false;
 	this.itemID = itemId;
+	this.title = '';
+}
+TodoItem.prototype.render = function(container) {
+	this.$template = $(Template.getTodoItem(this.itemID));
+	$(container).append(this.$template);
+}
+TodoItem.prototype.removeItem = function() {
+	this.$template.remove();
 }
 TodoItem.prototype.changeState = function() {
-	this.doneItem = !this.doneItem; // так можно??
-}
-TodoItem.prototype.isDone = function() {
-	return this.doneItem;
-}
+	if (this.itemDone == false) {
+			this.$template.addClass('taskIsDone');
+			this.$template.addClass('textIsDone');
+		}
+	else {
+		this.$template.removeClass('taskIsDone');	
+		this.$template.removeClass('textIsDone');	
+	}
 
-/* добавление строки */
-/*$('#addItem').click(function(){
-	var strAdd = '<tr><td>1</td><td>2</td><td>3</td></tr>';
-	$('.main-table').append('<tr><td>1</td><td>2</td><td>3</td></tr>');
-})*/
-
+	this.itemDone = !this.itemDone;
+}
+TodoItem.prototype.showItem = function() {
+	this.$template.removeClass('taskIsDone');
+},
+TodoItem.prototype.hideItem = function() {
+	this.$template.addClass('taskIsDone');
+}
