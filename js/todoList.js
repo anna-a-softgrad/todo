@@ -1,14 +1,20 @@
 TodoList = function() {
+	this.SHOW_ALL = 'showAll';
+	this.SHOW_ACTIVE = 'showAcive';
+	this.SHOW_COMPLETED = 'showCompleted';
+
 	this.todoItems = {};
 	this.itemID = 0;
+	this.taskDisplaying = this.SHOW_ACTIVE;
+
 	// check state jo showing !!! this.itemShowing = 
 
 	Model.clearAllItems();
 
-
 	$(document).on('click', '#addItem', this.addTask.bind(this));
 	$(document).on('click', '.changeStateItem', this.changeStateTask.bind(this));
-	$(document).on('click', '.removeItem', this.removeTask.bind(this));
+	$(document).on('click', '.removeItem', this.removeTask.bind(this));	
+	$(document).on('keyup', '.itemText', this.changeText.bind(this));
 
 	$(document).on('click', '#showAll', this.showAllTasks.bind(this));
 	$(document).on('click', '#showActive', this.showActiveTasks.bind(this));
@@ -17,25 +23,42 @@ TodoList = function() {
 	$(document).on('click', '#setAllToComplete', this.setAllToComplete.bind(this));
 }
 
+TodoList.prototype.changeText = function(event) {
+	var itemID = $(event.target).parents("tr")[0].id;
 
+	this.todoItems[itemID].title = event.target.value;
+
+	// change text in data
+	var obj = JSON.stringify(this.todoItems[itemID]);
+	Model.changeItemState(itemID, obj);
+}
 TodoList.prototype.addTask = function() {
-	this.itemID++;
-	this.todoItems[this.itemID] = new TodoItem(this.itemID);
+	if (this.taskDisplaying == this.SHOW_ALL || this.taskDisplaying == this.SHOW_ACTIVE) {
+		this.itemID++;
+		this.todoItems[this.itemID] = new TodoItem(this.itemID);
 
-	// painting
-	var table = document.getElementById("main-table");
-	var tempAddTask = this.todoItems[this.itemID].render(table);
+		// painting
+		var table = document.getElementById("main-table");
+		var tempAddTask = this.todoItems[this.itemID].render(table);
 
-	// save to localstorage
-	var obj = JSON.stringify(this.todoItems[this.itemID]);
-	Model.setToStorage(this.itemID, obj);
-
+		// save to localstorage
+		var obj = JSON.stringify(this.todoItems[this.itemID]);
+		Model.setToStorage(this.itemID, obj);
+	}
 }
 TodoList.prototype.changeStateTask = function(event) {
 	var itemID = $(event.target).parents("tr")[0].id;
 
 	//painting
 	this.todoItems[itemID].changeState();
+
+	// if all items are showing
+	if (this.taskDisplaying == this.SHOW_ALL) {
+		this.todoItems[itemID].showItem();		
+	}
+	if (this.taskDisplaying == this.SHOW_COMPLETED) {
+		this.todoItems[itemID].hideItem();		
+	}
 
 	// change state in data
 	var obj = JSON.stringify(this.todoItems[itemID]);
@@ -50,7 +73,10 @@ TodoList.prototype.removeTask = function(event) {
 	// remove from localstorage
 	Model.removeStorageItem(itemID);
 }
-TodoList.prototype.showAllTasks = function() {
+TodoList.prototype.showAllTasks = function(event) {
+	checkDisplayingTasks(event);
+	this.taskDisplaying = this.SHOW_ALL;
+
 	var allItems = Model.getAllItems();
 
 	for (i = 0; i < allItems.length; i++){
@@ -58,7 +84,10 @@ TodoList.prototype.showAllTasks = function() {
 			this.todoItems[item.itemID].showItem();
 	}
 }
-TodoList.prototype.showActiveTasks = function() {
+TodoList.prototype.showActiveTasks = function(event) {
+	checkDisplayingTasks(event);
+	this.taskDisplaying = this.SHOW_ACTIVE;
+
 	var allItems = Model.getAllItems();
 
 	for (i = 0; i < allItems.length; i++){
@@ -72,23 +101,54 @@ TodoList.prototype.showActiveTasks = function() {
 		}
 	}
 }
-TodoList.prototype.showCompletedTasks = function() {
-	// проверить все задачи на done
-	var arr = this.tasksArray;
+TodoList.prototype.showCompletedTasks = function(event) {
+	checkDisplayingTasks(event);
+	this.taskDisplaying = this.SHOW_COMPLETED;
 
-	for (var i = 0; i < arr.length; i++) {
-  		if (arr[i].isDone == true) {
-  			// отобразить
-  		}
+	var allItems = Model.getAllItems();
+
+	for (i = 0; i < allItems.length; i++){
+		var item = JSON.parse(allItems[i]);
+
+		if (item.itemDone == true){
+			this.todoItems[item.itemID].showItem();
+		}
+		else {
+			this.todoItems[item.itemID].hideItem();
+		}
 	}
 }
 TodoList.prototype.removeAllCompleted = function() {
-	//remove from localstorage
 
-	Model.clearAllCompletedItems();
+	var allItems = Model.getAllItems();
+
+	for (i = 0; i < allItems.length; i++){
+		var item = JSON.parse(allItems[i]);
+
+		if (item.itemDone == true){
+			this.todoItems[item.itemID].removeItem();
+			Model.removeStorageItem(item.itemID);
+		}
+	}
 }
 TodoList.prototype.setAllToComplete = function() {
-	for (var i = 0; i < this.tasksArray.length; i++) {
-  			// отобразить
-  	}
+	var allItems = Model.getAllItems();
+
+	for (i = 0; i < allItems.length; i++){
+		var item = JSON.parse(allItems[i]);
+
+		if (item.itemDone == false){
+			this.todoItems[item.itemID].changeState();
+			if (this.taskDisplaying == this.SHOW_ALL || this.taskDisplaying == this.SHOW_COMPLETED) {
+				this.todoItems[item.itemID].showItem();
+			}
+
+			var obj = JSON.stringify(this.todoItems[item.itemID]);
+			Model.changeItemState(item.itemID, obj);
+		}
+	}
+}
+function checkDisplayingTasks(event) {
+	$('.taskDisplay div').removeClass('checkedShowing');
+	$(event.target).addClass('checkedShowing');
 }

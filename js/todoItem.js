@@ -13,12 +13,14 @@ TodoItem.prototype.removeItem = function() {
 }
 TodoItem.prototype.changeState = function() {
 	if (this.itemDone == false) {
+			//checkBox
+			this.$template.find('.changeStateItem').prop('checked', true);
 			this.$template.addClass('taskIsDone');
 			this.$template.addClass('textIsDone');
 		}
 	else {
 		this.$template.removeClass('taskIsDone');	
-		this.$template.removeClass('textIsDone');	
+		this.$template.removeClass('textIsDone');
 	}
 
 	this.itemDone = !this.itemDone;
